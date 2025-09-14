@@ -1,0 +1,67 @@
+.product-page {
+  display: flex;
+  gap: 40px;
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.product-image-section {
+  flex: 1;
+  position: relative;
+  width: 500px;
+  height: 700px;
+}
+
+.product-image-section img {
+  object-fit: cover;
+}
+
+.product-details-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-details-section h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.product-details-section p {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.color-options {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.color-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent; /* Tutaj brakowało średnika */
+  transition: border-color 0.3s;
+}
+
+.color-circle.selected {
+  border-color: #333;
+}
+
+.add-to-cart-button {
+  padding: 15px 30px;
+  font-size: 1rem;
+  background-color: #000;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-to-cart-button:hover {
+  background-color: #333;
+}

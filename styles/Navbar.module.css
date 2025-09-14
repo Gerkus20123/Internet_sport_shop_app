@@ -1,0 +1,439 @@
+/* styles/Navbar.module.css */
+
+/* Panel nawigacji */
+.nav {
+  position: fixed; /* Przykleja element do widocznej części ekranu */
+  top: 0; /* Przykleja go do górnej krawędzi */
+  left: 0; /* Zapewnia, że jest wyrównany do lewej krawędzi */
+  width: 100%; /* Rozciąga na całą szerokość ekranu */
+  z-index: 100; /* Zapewnia, że nawigacja jest zawsze na wierzchu */
+  background-color: rgba(240, 240, 240, 0.95); 
+  justify-content: space-between;
+  align-items: center;
+}
+
+.leftList,
+.rightList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  font-size: medium;
+}
+
+.rightList {
+  text-transform: uppercase;
+}
+
+.bottomList {
+  margin-right: 30rem;
+  margin-top: 1.5rem;
+  font-size: small;
+  display: flex;
+}
+
+.logo {
+  margin-left: -4.5rem;
+  margin-top: 0.4rem;
+}
+
+.leftList li {
+  padding: 0.8rem 0.8rem; /* Zwiększenie obszaru klikalnego */
+  cursor: pointer; /* Zmiana kursora na wskaźnik dłoni */
+  transition: background-color 0.3s ease; /* Płynne przejście koloru tła */
+  margin-left: 50rem;
+}
+
+.rightList li {
+  padding: 0.8rem 1.6rem; /* Zwiększenie obszaru klikalnego */
+  cursor: pointer; /* Zmiana kursora na wskaźnik dłoni */
+  transition: background-color 0.3s ease; /* Płynne przejście koloru tła */
+}
+
+.link {
+  color: #333;
+  text-decoration: none;
+  font-weight: bold;
+  display: flex; /* Włącza Flexbox */
+  align-items: center; /* Wyśrodkowuje elementy w pionie */
+  gap: 0.5rem; /* Dodaje odstęp między ikoną a tekstem */
+}
+
+.leftList li:hover,
+.rightList li:hover {
+  background-color: #0ed176;
+}
+
+.link:hover {
+  color: #ffffff;
+}
+
+.navContainer {
+  display: flex;
+  flex-direction: column; 
+  padding: 1rem;
+  position: relative;
+}
+
+.topRow,
+.bottomRow {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+}
+
+.bottomRow {
+  margin-left: 7rem;
+}
+
+/* Style dla dropdownów */
+.dropdown {
+  display: inline-block; /* Aby menu rozwijane było obok siebie */
+  margin-right: 3rem;
+}
+
+.dropdownToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: bold;
+  color: #333;
+  cursor: pointer;
+  padding: 0.8rem 1rem;
+  position: relative;
+  transition: background-color 0.3s ease;
+  text-transform: uppercase;
+}
+
+/* Pseudoelement, który będzie paskiem */
+.dropdownToggle::after {
+  content: '';
+  position: absolute;
+  bottom: -0.5rem; /* Umieszcza pasek poniżej tekstu */
+  left: 50%; /* Wyrównuje do środka */
+  transform: translateX(-50%);
+  width: 0; /* Początkowo pasek ma zerową szerokość */
+  height: 3px; /* Grubość paska */
+  background-color: #0ed176; /* Kolor paska */
+  transition: width 0.3s ease-out; /* Płynna animacja szerokości */
+}
+
+/* Pasek pod NEW, HE, SHE, KIDS i SALE */
+.dropdownToggle:hover::after {
+  width: 100%; /* Pasek rośnie po najechaniu myszką */
+}
+
+
+.dropdownPanelVertical ul li a::after {
+  content: none;
+}
+
+/* Panel dla He, She i Sale - układ kolumnowy */
+.dropdownPanelVertical {
+  position: absolute;
+  top: 9.1rem;
+  left: 0;
+  width: 100%;
+  min-height: 130px; /* Minimalna wysokość panelu */
+  background-color: #fff;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  z-index: 10; /* Wysoki z-index, aby był nad innymi elementami */
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  padding: 2rem 10rem 2rem 25rem; /* Wewnętrzny margines */
+  display: flex; /* Flexbox, aby ułożyć kolumny */
+  justify-content: flex-start;
+  gap: 6rem;
+}
+
+/* Panel dla Nowości - układ poziomy */
+.dropdownPanelHorizontal {
+  position: absolute;
+  top: 9.1rem;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  z-index: 10;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.dropdownCategoryTitle {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.5rem;
+  position: relative;
+  text-transform: uppercase;
+}
+
+/* Styl listy dla paneli pionowych (He, She, Sale) */
+.dropdownPanelVertical ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Styl listy dla paneli poziomych (New) */
+.dropdownPanelHorizontal ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row; /* Elementy w rzędzie */
+  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+  text-transform: uppercase;
+}
+
+.dropdownPanelVerticalPanel ul li {
+  padding: 0  0.5rem;
+}
+
+.dropdownPanelVertical ul li a {
+  display: block;
+  padding: 0.5rem 0;
+  color: #333;
+  text-decoration: none;
+}
+
+.dropdownPanelVertical ul li a:hover {
+  color: #0ed176;
+}
+
+.dropdownToggle svg {
+    transform: rotate(180deg);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Reguła, która na hover odwraca strzałkę w dół */
+.dropdownToggle:hover svg {
+    transform: rotate(0deg);
+}
+
+.dropdownPanelVertical .logo {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: -2rem;
+  position: relative;
+}
+
+.dropdownPanelVertical .logo img {
+  object-fit: cover; /* Dopasowuje obraz, zachowując proporcje i wypełniając kontener */
+}
+
+.email {
+  margin-right: 30rem;
+  font-size: small;
+}
+
+.phone {
+  font-size: small;
+  margin-left: 1rem;
+}
+
+.rightIcons {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Odstęp między ikonami */
+  margin-right: 3rem;
+}
+
+.searchBarContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px; /* Dostosuj pozycję ikony od lewej */
+  color: #888; /* Kolor ikony */
+  pointer-events: none; /* Upewnij się, że ikona nie blokuje kliknięć */
+  font-size: 1.2rem;
+}
+
+/* Input: Dodaj padding, aby tekst nie zachodził na ikonę */
+.searchInput {
+  width: 100%;
+  padding-left: 40px; /* Zwiększ padding, aby zrobić miejsce na ikonę */
+  padding-right: 15px; /* Dodaj prawy padding, jeśli potrzebny */
+  height: 35px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.searchInput:focus + .searchIcon {
+  transform: scale(1.2); /* Powiększa ikonę o 20% */
+  transition: transform 0.3s ease; /* Płynna animacja */
+  color: #111111; /* Opcjonalnie: zmiana koloru ikony na zielony */
+}
+
+.searchInput:focus {
+  border-color: #0ed176;
+  box-shadow: 0 0 5px rgba(0, 112, 243, 0.2);
+}
+
+
+/* Styl dla ikon koszyka i ulubionych */
+.icon {
+  font-size: 1.2rem;
+  color: var(--text-color); /* Użyj zmiennej CSS, jeśli masz */
+  transition: color 0.2s ease-in-out;
+}
+
+.icon:hover {
+  color: #0ed176; /* Kolor po najechaniu, dostosuj do swojego schematu */
+}
+
+.instruments {
+  position: absolute;
+  width: 100%;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+  padding-right: 5rem;
+  align-items: center;
+}
+
+.profileMenuContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s ease-in-out;
+}
+
+.profileDropdownPanel {
+  position: absolute;
+  top: 0;
+  background-color: rgba(240, 240, 240, 1); 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  z-index: 20;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease-in-out; 
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+.profileDropdownPanel ul {
+  list-style: none;
+  margin-top: 3rem;
+}
+
+.profileDropdownPanel ul li a,
+.profileDropdownPanel ul li button {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 0.5rem 0.8rem;
+  color: #333;
+  text-decoration: none;
+  background: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.profileDropdownPanel ul li a:hover,
+.profileDropdownPanel ul li button:hover {
+  background-color:#e2e2e2;
+  transition: all 0.2s ease-in-out;
+}
+
+.profileImage {
+  border-radius: 50%;
+  object-fit: cover;
+  z-index: 21;
+  margin: 0.1rem;
+}
+
+.logoutButton {
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+.logoutButton:hover {
+  color: #11cc21;
+}
+
+.profileButtonContainer {
+  display: flex; /* Użycie Flexbox do ułożenia elementów w rzędzie */
+  align-items: center; /* Wyśrodkowanie w pionie */
+  gap: 30px; /* Odstęp między zdjęciem, nazwą a strzałką */
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #333; /* Kolor tekstu */
+  font-weight: bold;
+  background-color: rgba(240, 240, 240, 0); 
+  border-radius: 15px;
+  min-width: 105%;
+  z-index: 21;
+  margin-right: 0.55rem;
+}
+
+.profileButtonContainer:hover {
+  background-color:#e2e2e2;
+  transition: all 0.2s ease-in-out;
+}
+
+.profileButtonContainer svg {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease-in-out;
+}
+
+.profileButtonContainer .rotate {
+  transform: rotate(0deg);
+}
+
+/* Styl dla nazwy użytkownika */
+.userName {
+  font-size: 0.7rem;
+  color: #333;
+  z-index: 21;
+}
+
+.profile {
+  transition: transform 0.3s ease;
+}
+
+.rightIcons .link {
+  /* ... istniejące style ... */
+  position: relative; /* Umożliwia pozycjonowanie licznika */
+}
+
+.likedCounter {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background-color: red;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none; /* Aby kliknięcia przechodziły do przycisku */
+}

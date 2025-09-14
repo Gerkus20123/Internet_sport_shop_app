@@ -1,103 +1,484 @@
-import Image from "next/image";
+"use client"
+
+import Navbar from '../../components/nav-bar';
+import styles from '../../styles/Home.module.css';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useState, useEffect } from 'react'
+import LoginModal from '../../components/account';
+import Footer from '../../components/footer';
+import { auth } from '../../firebase/config';
+import { onAuthStateChanged } from 'firebase/auth';
+import CartModal from '../../components/cart';
+import LikedProductsModal from '../../components/liked-products';
+import Notification from '../../components/notification';
+
+// Importuj dane produktów z ich oddzielnych plików
+import { K_C_B_Jackets } from '../../products/Kids/Clothes/Boy/Jackets/products.js';
+import { K_C_G_Jackets } from '../../products/Kids/Clothes/Girl/Jackets/products.js';
+import { K_C_B_Tshirts } from '../../products/Kids/Clothes/Boy/T-shirts_Poloes/T-Shirts/products.js';
+import { K_C_G_Tops } from '../../products/Kids/Clothes/Girl/Tops/products.js';
+
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [hoveredProduct, setHoveredProduct] = useState(null);
+  const [selectedColors, setSelectedColors] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userProfilePic, setUserProfilePic] = useState("/photo.png")
+  const [isCartModalOpen, setIsCartModalOpen] = useState(false);
+  const [isLikedModalOpen, setIsLikedModalOpen] = useState(false);
+  const [likedCount, setLikedCount] = useState(0);
+  const [cartCount, setCartCount] = useState(0);
+  const [notification, setNotification] = useState({ message: '', type: '', isVisible: false });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  // Otwieranie modalu do Login
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+  
+  // Otwieranie modalu do Cart
+  const openCartModal = () => {
+    // Sprawdź, czy użytkownik jest zalogowany
+    if (isLoggedIn) {
+      setIsCartModalOpen(true); // Jeśli tak, otwórz modal ulubionych
+    } else {
+      openModal(); // Jeśli nie, otwórz modal logowania
+    }
+  };
+  const closeCartModal = () => setIsCartModalOpen(false);
+
+  // Funkcje do otwierania i zamykania modala ulubionych
+  const openLikedModal = () => {
+    // Sprawdź, czy użytkownik jest zalogowany
+    if (isLoggedIn) {
+        setIsLikedModalOpen(true); // Jeśli tak, otwórz modal ulubionych
+    } else {
+        openModal(); // Jeśli nie, otwórz modal logowania
+    }
+  };
+  const closeLikedModal = () => setIsLikedModalOpen(false);
+
+
+  // Funkcje do obsługi logowania i wylogowania
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setUserProfilePic("/photo.png");
+    closeModal();
+  };
+
+
+  const showNotification = (message, type) => {
+    setNotification({ message, type, isVisible: true });
+    setTimeout(() => {
+        setNotification({ message: '', type: '', isVisible: false });
+    }, 3000); // Powiadomienie zniknie po 3 sekundach
+  };
+
+  const addToCart = (product) => {
+    const storedCart = JSON.parse(localStorage.getItem('cartItems')) || [];
+    const existingItemIndex = storedCart.findIndex(item => item.id === product.id);
+
+    // Wybieramy obraz do dodania do koszyka
+    // Użyj pierwszego obrazu z listy dostępnych (niezależnie od hover)
+    const hasNestedColors = product.colors && product.colors.length > 0 && typeof product.colors[0] === 'object';
+    const selectedColorIndex = selectedColors[product.id] || 0;
+    const imagesForProduct = hasNestedColors ? product.colors[selectedColorIndex].images : product.images;
+    const imageUrl = imagesForProduct['388_562'][0];
+
+    const productWithImage = {
+        ...product,
+        quantity: 1,
+        price: parseFloat(product.price), // Upewniamy się, że cena jest liczbą
+        image: imageUrl // Dodajemy poprawną ścieżkę do obrazu
+    };
+
+    if (existingItemIndex > -1) {
+        // Jeśli produkt już jest w koszyku, tylko zwiększamy ilość
+        storedCart[existingItemIndex].quantity += 1;
+    } else {
+        // Dodajemy nowy produkt z obrazem
+        storedCart.push(productWithImage);
+        showNotification(`${product.name} został dodany do koszyka!`, 'success');
+    }
+
+    localStorage.setItem('cartItems', JSON.stringify(storedCart));
+    setIsCartModalOpen(true);
+  };
+
+
+  const handleToggleLiked = (product) => {
+    const storedLiked = JSON.parse(localStorage.getItem('likedItems')) || [];
+    const existingItemIndex = storedLiked.findIndex(item => item.id === product.id);
+    let updatedLiked;
+
+    if (existingItemIndex > -1) {
+      // Usuń, jeśli już jest w ulubionych
+      updatedLiked = storedLiked.filter(item => item.id !== product.id);
+      showNotification(`${product.name} został usunięty z ulubionych.`, 'error');
+    } else {
+      // Dodaj do ulubionych
+      const imageUrl = product.colors?.[0]?.images?.['388_562']?.[0] || product.images?.['388_562']?.[0];
+      const newLikedItem = { ...product, image: imageUrl };
+      updatedLiked = [...storedLiked, newLikedItem];
+      showNotification(`${product.name} został dodany do ulubionych!`, 'success');
+    }
+    localStorage.setItem('likedItems', JSON.stringify(updatedLiked));
+    setLikedCount(updatedLiked.length)
+  };
+
+  // Tablica z adresami obrazów do karuzeli
+  const images = [
+    {
+      src: '/Home/current_offers/Image_1.png',
+      title: 'Summer & Winter',
+      buttons: [
+        { text: 'Women', href: '/women' },
+        { text: 'Men', href: '/men' },
+      ],
+    },
+    {
+      src: '/Home/current_offers/Image_2.png',
+      title: 'Limited Offers',
+      buttons: [
+        { text: 'New collection', href: '/new-collection' },
+        { text: 'Summer offers', href: '/summer-offers' },
+      ],
+    },
+    {
+      src: '/Home/current_offers/Image_3.jpg',
+      title: 'Back to School',
+      buttons: [
+        { text: 'Girl', href: '/girl' },
+        { text: 'Boy', href: '/boy' },
+      ],
+    },
+  ];
+
+  const handleNext = () => {
+    setCurrentImageIndex((prevIndex) => 
+      (prevIndex + 1) % images.length
+    );
+  };
+
+  const handlePrev = () => {
+    setCurrentImageIndex((prevIndex) =>
+      (prevIndex - 1 + images.length) % images.length
+    );
+  };
+
+  // Dodajemy useEffect do automatycznego przełączania
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handleNext();
+    }, 10000);
+
+    return () => clearInterval(interval); // Czyszczenie interwału po odmontowaniu komponentu
+  }, [currentImageIndex, handleNext]); // Dodajemy zależności
+
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+// Przywraca domyślne przewijanie, gdy modal jest zamknięty.
+      document.body.style.overflow = 'unset';
+    }
+  }, [isModalOpen]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Użytkownik jest zalogowany
+        setIsLoggedIn(true);
+        console.log("User is signed in:", user.uid);
+      } else {
+        // Użytkownik jest wylogowany
+        setIsLoggedIn(false);
+        setUserProfilePic("/photo.png");
+        console.log("User is signed out.");
+      }
+    });
+    // Zwróć funkcję czyszczącą, aby usunąć subskrypcję po odmontowaniu komponentu
+    return () => unsubscribe();
+  }, []);
+
+
+  useEffect(() => {
+    // Nowa logika do liczenia ulubionych produktów z localStorage
+    const storedLiked = JSON.parse(localStorage.getItem('likedItems')) || [];
+    setLikedCount(storedLiked.length);
+  }, [likedCount]);
+
+    // Pobieramy dane dla aktualnie wyświetlanego obrazu
+  const currentImage = images[currentImageIndex];
+
+  // Połącz wszystkie zaimportowane produkty w jedną tablicę
+  const allNewProducts = [...K_C_B_Jackets, ...K_C_G_Jackets, ...K_C_B_Tshirts, ...K_C_G_Tops];
+
+  const handleColorClick = (productId, colorIndex) => {
+    setSelectedColors(prevState => ({
+      ...prevState,
+      [productId]: colorIndex,
+    }));
+  };  
+
+  return (
+    <>
+      <Navbar 
+        onLoginClick={openModal}
+        onCartClick={openCartModal}
+        onLikedProductsClick={openLikedModal}
+        likedCount={likedCount}
+        isLoggedIn={isLoggedIn}
+        userProfilePic={userProfilePic}
+        onLogoutClick={() => {
+          setIsLoggedIn(false);
+          setUserProfilePic("/photo.png");
+        }}
+      />
+
+      <main className={styles.main}>
+        <section>
+          
+{/* Lista aktualności */}
+          <div className={styles.current_offers}>
+            
+            <div className={styles.logo}>
+              {images.map((image, index) => (
+                <Image
+                  key={image.src}
+                  src={image.src}
+                  alt={`Image ${index + 1}`}
+                  fill
+                  className={`${styles.carouselImage} ${index === currentImageIndex ? styles.active : ''}`}
+                />
+              ))}
+
+              {/* Przycisk ze strzałką w lewo */}
+              <button onClick={handlePrev} className={`${styles.carouselArrow} ${styles.left}`}>
+                &lt;
+              </button>
+              {/* Przycisk ze strzałką w prawo */}
+              <button onClick={handleNext} className={`${styles.carouselArrow} ${styles.right}`}>
+                &gt;
+              </button>
+
+              {/* Kontener z przyciskami nałożony na obraz */}
+              <div className={styles.buttonsOverlay}>
+                {currentImage.title && <h2 className={styles.overlayTitle}>{currentImage.title}</h2>}
+                {/* Dynamiczne renderowanie przycisków na podstawie danych */}
+                {currentImage.buttons.map((button, index) => (
+                  <Link key={index} href={button.href}>
+                    <button className={styles.overlayButton}>
+                      {button.text}
+                    </button>
+                  </Link>
+                ))}
+              </div>
+              
+              {/* Paginacja karuzeli */}
+              <div className={styles.carouselPagination}>
+                {images.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`${styles.paginationDot} ${index === currentImageIndex ? styles.dotActive : ''}`}
+                  ></button>
+                ))}
+              </div>
+
+            </div>
+          </div>
+
+{/* Poznaj nasze produkty */}
+          <div className={styles.offers}>
+            <h1> Our products </h1>
+            <div className={styles.productGallery}>
+
+              <div className={styles.productItem}>
+                <Image
+                  src="/Products/Kids/Clothes/Boy/Jackets/K_C_B_Jacket_1/388_562/1.jpg"
+                  alt="Boy jacket"
+                  width={250}
+                  height={350}
+                />
+                <div className={styles.overlay}>
+                  <h2> Boy jackets </h2>
+                  <Link href="/Products/Kids/Clothes/Boy/Jackets/" className={styles.overlayButton}>
+                    See
+                  </Link>
+                </div>
+              </div>
+
+              <div className={styles.productItem}>
+                <Image
+                  src="/Products/Kids/Clothes/Boy/T-shirts_Poloes/T-shirts/K_C_B_TiShPol_TiSh_1/black/388_562/2.jpg"
+                  alt="Boy T-shirt"
+                  width={250}
+                  height={350}
+                />
+                <div className={styles.overlay}>
+                  <h2> Boy T-shirts </h2>
+                  <Link href="/Products/Kids/Clothes/Boy/T-shirts/" className={styles.overlayButton}>
+                    See
+                  </Link>
+                </div>
+              </div>
+
+              <div className={styles.productItem}>
+                <Image
+                  src="/Products/Kids/Clothes/Girl/Jackets/K_C_G_Jacket_1/388_562/1.jpg"
+                  alt="Girl jacket"
+                  width={250}
+                  height={350}
+                />
+                <div className={styles.overlay}>
+                  <h2> Girl jackets </h2>
+                  <Link href="/Products/Kids/Clothes/Girl/Jackets/" className={styles.overlayButton}>
+                    See
+                  </Link>
+                </div>
+              </div>
+
+              <div className={styles.productItem}>
+                <Image
+                  src="/Products/Kids/Clothes/Girl/Tops/K_C_G_Tops_1/388_562/1.jpg"
+                  alt="Girl top"
+                  width={250}
+                  height={350}
+                />
+                <div className={styles.overlay}>
+                  <h2> Girl tops </h2>
+                  <Link href="/Products/Kids/Clothes/Girl/Tops" className={styles.overlayButton}>
+                    See
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+{/* Nowa kolekcja */}
+          <div className={styles.new_collection}>
+            <h1> New offers </h1>
+            <div className={styles.productGallery}>
+              {allNewProducts.map((product) => {
+                const hasNestedColors = product.colors && product.colors.length > 0 && typeof product.colors[0] === 'object';
+                
+                const selectedColorIndex = selectedColors[product.id] || 0;
+
+                const imagesForProduct = hasNestedColors
+                  ? product.colors[selectedColorIndex].images
+                  : product.images;
+
+                return (
+                    <div 
+                      key={product.id}
+                      className={styles.fullProductCard}
+                    >
+                      <div 
+                        className={styles.productItem}
+                        onMouseEnter={() => setHoveredProduct(product.id)}
+                        onMouseLeave={() => setHoveredProduct(null)}
+                      >
+                        {/* Obraz produktu, który jest tłem dla przycisków */}
+                        <Image
+                          src={hoveredProduct === product.id ? imagesForProduct['388_562'][1] : imagesForProduct['388_562'][0]}
+                          alt={product.name}
+                          width={250}
+                          height={350}
+                          className={styles.productImage}
+                        />
+
+                        {/* Przyciski, które pojawią się nad obrazem */}
+                        {hoveredProduct === product.id && (
+                          <div className={styles.productOverlayButtons}>
+
+                            <button 
+                              className={styles.addToCartButton}
+                              onClick={() => addToCart(product)}
+                            >
+                                Add to cart
+                            </button>
+
+                            <Link href={`/product/${product.id}`}>
+                              <button className={styles.seeDetailsButton}>
+                                See details
+                              </button>
+                            </Link>
+
+                            <button
+                            className={styles.likedProductButton}
+                            onClick={() => handleToggleLiked(product)}
+                            >
+                              Like
+                            </button>
+
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Opis produktu, który powinien być pod obrazem */}
+                      <div className={styles.productInfo}>
+                        <h2>{product.name}</h2>
+                        <p>{product.price}</p>
+                        <div className={styles.colorOptions}>
+                          {product.colors.map((color, index) => (
+                            <span 
+                              key={index} 
+                              style={{ backgroundColor: hasNestedColors ? color.code : color }} 
+                              className={styles.colorCircle}
+                              onClick={() => handleColorClick(product.id, index)} 
+                            ></span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+      {/* footer */}
+      <Footer />
+      
+
+      <Notification 
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+      />
+
+      {isCartModalOpen && (
+        <CartModal 
+          isOpen={isCartModalOpen} 
+          onClose={closeCartModal}
+          onLogin={openModal} // onLogin to funkcja do otwierania modala logowania
+        />
+      )}
+
+      {isLikedModalOpen && (
+        <LikedProductsModal
+            isOpen={isLikedModalOpen} 
+            onClose={() => {
+                closeLikedModal();
+                // Po zamknięciu modala, zaktualizuj licznik
+                const storedLiked = JSON.parse(localStorage.getItem('likedItems')) || [];
+                setLikedCount(storedLiked.length);
+            }}
+            onLogin={openModal} 
+        />
+      )}
+
+      {isModalOpen && (
+        <LoginModal 
+          onClose={closeModal} 
+          onLogin={handleLogin}
+        />
+      )}
+
+    </>
   );
 }
