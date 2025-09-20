@@ -1,15 +1,15 @@
 /* styles/Home.module.css */
 
+/* ------------------ 1. Lista aktualnośći ------------------*/
 
 .current_offers {
   margin-left: -7rem;
 
 }
 
-/* Upewnij się, że .logo w current_offers ma position: relative */
 .current_offers .logo {
   position: relative;
-  width: 109%; /* Ustaw szerokość */
+  width: 109%;
   height: 550px;
   overflow: hidden;
 }
@@ -18,29 +18,8 @@
   object-fit: fill;
 }
 
-/* Pokazanie nakładki po najechaniu na .productItem */
-.productItem:hover .overlay {
-  opacity: 1;
-}
-
 .logo {
   margin-top: -3.9rem;
-}
-
-/* Style dla sekcji z nagłówkami */
-.offers,
-.new_collection {
-  text-align: center; /* Wyśrodkuj nagłówki */
-}
-
-.offers h1,
-.new_collection h1 {
-  font-size: 2rem; /* Dostosuj rozmiar czcionki, jeśli to konieczne */
-  color: #333;
-  text-transform: uppercase;
-  font-weight: bold;
-  margin-top: 4rem;
-  margin-bottom: 2rem;
 }
 
 .buttonsOverlay {
@@ -49,8 +28,8 @@
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
-  flex-direction: column; /* Zmieniono, aby ułożyć tytuł nad przyciskami */
-  align-items: center; /* Wyśrodkowanie w poziomie */
+  flex-direction: column;
+  align-items: center;
   gap: 55px; 
   z-index: 10;
 }
@@ -72,7 +51,6 @@
   font-size: 1rem;
   font-weight: bold;
   text-transform: uppercase;
-  border-radius: 5px;
   transition: background-color 0.3s ease;
 }
 
@@ -147,19 +125,7 @@
   transform: scale(1.2);
 }
 
-.productGallery {
-  display: flex;
-  justify-content: space-around; /* Rozkłada obrazy równomiernie */
-  align-items: center; /* Wyśrodkowuje w pionie */
-  gap: 20px; /* Dodaje odstęp między obrazami */
-  flex-wrap: wrap; /* Zapewnia, że obrazy przejdą do nowej linii na małych ekranach */
-  padding: 20px 0; /* Dodaje trochę przestrzeni od góry i dołu */
-}
-
-/* Dostosuj styl .offers, aby usunąć potencjalne konflikty */
-.offers {
-  text-align: center;
-}
+/* ------------------ 2. Poznaj nasze produkty ------------------ */
 
 .productItem {
   position: relative; /* Kluczowe do pozycjonowania nakładki */
@@ -168,23 +134,37 @@
   cursor: pointer;
 }
 
-.productItem:hover {
-  transform: scale(1.05); /* Lekkie powiększenie po najechaniu */
+.productItem:hover .overlay {
+  opacity: 1;
 }
 
-/* Nakładka z tekstem i przyciskiem */
+.offers {
+  text-align: center;
+}
+
+/* Styl dla nagłówka sekcji "Offers" */
+.offers h1 {
+  font-size: 2rem;
+  color: #333;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-top: 4rem;
+  margin-bottom: 2rem;
+}
+
+/* Nakładka pojawiająca się po najechaniu na produkt */
 .overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Półprzezroczyste tło */
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  opacity: 0; /* Domyślnie niewidoczna */
+  opacity: 0;
   transition: opacity 0.3s ease;
 }
 
@@ -200,8 +180,9 @@
   margin-bottom: 10px;
 }
 
-.overlay .overlayButton {
-  background-color: #fff;
+/* Styl dla przycisku w nakładce */
+.overlay .ovButton {
+  background-color: #ffffff;
   color: #333;
   padding: 10px 20px;
   border: none;
@@ -210,29 +191,65 @@
   transition: background-color 0.3s ease;
 }
 
-.overlay .overlayButton:hover {
-  background-color: #f0f0f0;
+/* Zmiana koloru przycisku po najechaniu */
+.overlay .ovButton:hover {
+  background-color: #c2c2c2;
+}
+
+
+/* ------------------ 3. Nowa kolekcja ------------------ */
+
+/* Kontener sekcji "New Collection" */
+.new_collection {
+  text-align: center;
+}
+
+/* Styl dla nagłówka sekcji "New Collection" */
+.new_collection h1 {
+  font-size: 2rem;
+  color: #333;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin-top: 4rem;
+  margin-bottom: 2rem;
+}
+
+/* Link otaczający cały produkt, by był klikalny */
+.productLink {
+  display: block;
+}
+
+/* Kontener galerii produktów */
+.productGallery {
+  display: flex;
+  justify-content: space-around; /* Rozkłada obrazy równomiernie */
+  align-items: center; /* Wyśrodkowuje w pionie */
+  gap: 20px; /* Dodaje odstęp między obrazami */
+  flex-wrap: wrap; /* Zapewnia, że obrazy przejdą do nowej linii na małych ekranach */
+  padding: 20px 0;
 }
 
 /* Style dla obrazu w galerii, by zawsze wypełniał kontener */
 .productImage {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Upewnij się, że obraz wypełnia kontener */
+  object-fit: cover;
 }
 
-/* Nowa sekcja z informacjami o produkcie, zawsze widoczna */
+/* Sekcja z informacjami o produkcie */
 .productInfo {
   padding: 10px;
   text-align: left;
 }
 
+/* Styl dla nazwy produktu */
 .productInfo h2 {
   font-size: 1.1rem;
   margin-bottom: 5px;
   color: #333;
 }
 
+/* Styl dla ceny produktu */
 .productInfo p {
   font-size: 1rem;
   font-weight: bold;
@@ -246,6 +263,7 @@
   margin-top: 5px;
 }
 
+/* Styl dla pojedynczego kółka koloru */
 .colorCircle {
   width: 15px;
   height: 15px;
@@ -254,7 +272,7 @@
   cursor: pointer;
 }
 
-/* Nowa nakładka z przyciskiem "Dodaj do koszyka" */
+/* Nakładka z przyciskiem "Dodaj do koszyka" */
 .addToCartOverlay {
   position: absolute;
   top: 50%;
@@ -263,94 +281,84 @@
   z-index: 20;
 }
 
+/* Style dla przycisku "Add to cart" */
 .addToCartButton {
-  padding: 5px 10px;
+  position: absolute;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  right: 0.5rem;
+  padding: 10px;
   font-size: 0.8rem;
   border: none;
   cursor: pointer;
   transition: background-color 0.3s;
-  flex: 1; /* Aby przyciski rozciągały się i wypełniały dostępną przestrzeń */
-  border-radius: 5px; /* Zaokrąglone rogi, jeśli chcesz */
-  text-align: center; /* Wyśrodkowanie tekstu */
-  text-decoration: none; /* Usuń podkreślenie z Link */
-  display: flex; /* Upewnij się, że tekst jest wyśrodkowany */
-  justify-content: center;
-  align-items: center;
+  flex: 1;
+  text-decoration: none;
+  display: flex;
   background-color: #333;
   color: #fff;
-  margin-right: 1rem;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Zmiana koloru przycisku "Add to cart" po najechaniu */
 .addToCartButton:hover {
   background-color: #555;
 }
 
-/* Style dla przycisku "See details" */
-.seeDetailsButton {
-  background-color: #f0f0f0; /* Jasny kolor */
-  color: #333; /* Ciemny tekst */
-  padding: 4.5px 10px;
-  font-size: 0.8rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  flex: 1; /* Aby przyciski rozciągały się i wypełniały dostępną przestrzeń */
-  border-radius: 5px; /* Zaokrąglone rogi, jeśli chcesz */
-  text-align: center; /* Wyśrodkowanie tekstu */
-  text-decoration: none; /* Usuń podkreślenie z Link */
-  display: flex; /* Upewnij się, że tekst jest wyśrodkowany */
-  justify-content: center;
-  align-items: center;
-}
-
-.seeDetailsButton:hover {
-  background-color: #ddd;
-}
-
-.productOverlayButtons {
-  position: absolute; /* Upewnia się, że nakładka jest nad produktem */
-  bottom: 10px; /* Dostosuj pozycję pionową */
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex; /* Aby przyciski były obok siebie */
-  gap: 8px; /* Odstęp między przyciskami */
-  opacity: 0; /* Domyślnie niewidoczny */
-  transition: opacity 0.3s ease-in-out; /* Płynne pojawianie się */
-  width: 90%; /* Kontrola szerokości overlay'a */
-  justify-content: center; /* Centrowanie przycisków */
-  z-index: 10; /* Upewnij się, że jest na wierzchu */
-}
-
+/* Kartki w sekcji "New Offers" */
 .fullProductCard {
-  position: relative; /* Ważne dla ewentualnych przyszłych pozycjonowań */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Przeniesiona ramka */
+  position: relative;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
   cursor: pointer;
-  /* Możesz dodać padding lub margines, jeśli potrzebujesz */
-  margin-bottom: 20px; /* Odstęp między kartami produktów */
+  margin-bottom: 40px;
 }
 
+/* Efekt powiększenia przy najechaniu dla kartki "New offers" */
 .fullProductCard:hover {
-  transform: scale(1.05); /* Efekt powiększenia po najechaniu, przeniesiony */
+  transform: scale(1.05);
 }
 
+/* Styl dla przycisku "Like Product" (gwiazdka) */
 .likedProductButton {
-  background-color: #f0f0f0; /* Jasny kolor */
-  color: #333; /* Ciemny tekst */
-  padding: 4.5px 10px;
-  font-size: 0.8rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  flex: 1; /* Aby przyciski rozciągały się i wypełniały dostępną przestrzeń */
-  border-radius: 5px; /* Zaokrąglone rogi, jeśli chcesz */
-  text-align: center; /* Wyśrodkowanie tekstu */
-  text-decoration: none; /* Usuń podkreślenie z Link */
-  display: flex; /* Upewnij się, że tekst jest wyśrodkowany */
-  justify-content: center;
-  align-items: center;
+  position: absolute;
+  top: 10px;        
+  right: 10px;       
+  z-index: 20;       
+  background: none;  
+  border: none;      
+  cursor: pointer;   
+  font-size: 1.2rem;
+  padding: 0;   
+  transition: transform 0.2s ease, opacity 0.3s ease-in-out;
+  color: #a0a0a0;
 }
 
+/* Efekt hover dla gwiazdki po najechaniu myszką */
 .likedProductButton:hover {
-  background-color: #ddd;
+  transform: scale(1.2);  
+}
+
+/* Styl dla białego kółka (container dla gwiazdki) */
+.likedIconCircle {
+  width: 30px; /* Rozmiar kółka */
+  height: 30px;
+  background-color: #fff; /* Białe tło kółka */
+  border-radius: 50%; /* Tworzy idealne koło */
+  display: flex;
+  justify-content: center; /* Wyśrodkowanie ikonki w pionie i poziomie */
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Delikatny cień */
+}
+
+/* Styl dla gwiazdki wewnątrz kółka */
+.likedIconCircle svg {
+  font-size: 1rem;
+  color: #a0a0a0;
+}
+
+/* Styl dla gwiazdki wewnątrz kółka, kiedy jest polubienie */
+.likedIconCircle .likedStar {
+  fill: url(#star-gradient);
 }

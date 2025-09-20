@@ -423,8 +423,8 @@
 
 .likedCounter {
   position: absolute;
-  top: -5px;
-  right: -10px;
+  top: -6px;
+  right: -11px;
   background-color: red;
   color: white;
   font-size: 0.75rem;

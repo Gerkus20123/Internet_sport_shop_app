@@ -12,6 +12,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import CartModal from '../../components/cart';
 import LikedProductsModal from '../../components/liked-products';
 import Notification from '../../components/notification';
+import { FaRegStar, FaStar } from 'react-icons/fa';
 
 // Importuj dane produktów z ich oddzielnych plików
 import { K_C_B_Jackets } from '../../products/Kids/Clothes/Boy/Jackets/products.js';
@@ -19,6 +20,16 @@ import { K_C_G_Jackets } from '../../products/Kids/Clothes/Girl/Jackets/products
 import { K_C_B_Tshirts } from '../../products/Kids/Clothes/Boy/T-shirts_Poloes/T-Shirts/products.js';
 import { K_C_G_Tops } from '../../products/Kids/Clothes/Girl/Tops/products.js';
 
+const StarGradient = () => (
+  <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+    <defs>
+      <linearGradient id="star-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style={{ stopColor: '#bbe8c5ff', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#1ca85fff', stopOpacity: 1 }} />
+      </linearGradient>
+    </defs>
+  </svg>
+);
 
 export default function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -29,9 +40,11 @@ export default function Home() {
   const [userProfilePic, setUserProfilePic] = useState("/photo.png")
   const [isCartModalOpen, setIsCartModalOpen] = useState(false);
   const [isLikedModalOpen, setIsLikedModalOpen] = useState(false);
+  const [likedItems, setLikedItems] = useState([]); 
   const [likedCount, setLikedCount] = useState(0);
   const [cartCount, setCartCount] = useState(0);
   const [notification, setNotification] = useState({ message: '', type: '', isVisible: false });
+
 
   // Otwieranie modalu do Login
   const openModal = () => setIsModalOpen(true);
@@ -76,55 +89,60 @@ export default function Home() {
   };
 
   const addToCart = (product) => {
-    const storedCart = JSON.parse(localStorage.getItem('cartItems')) || [];
-    const existingItemIndex = storedCart.findIndex(item => item.id === product.id);
+    if (typeof window !== 'undefined') {
+      const storedCart = JSON.parse(localStorage.getItem('cartItems')) || [];
+      const existingItemIndex = storedCart.findIndex(item => item.id === product.id);
 
-    // Wybieramy obraz do dodania do koszyka
-    // Użyj pierwszego obrazu z listy dostępnych (niezależnie od hover)
-    const hasNestedColors = product.colors && product.colors.length > 0 && typeof product.colors[0] === 'object';
-    const selectedColorIndex = selectedColors[product.id] || 0;
-    const imagesForProduct = hasNestedColors ? product.colors[selectedColorIndex].images : product.images;
-    const imageUrl = imagesForProduct['388_562'][0];
+      // Wybieramy obraz do dodania do koszyka
+      // Użyj pierwszego obrazu z listy dostępnych (niezależnie od hover)
+      const hasNestedColors = product.colors && product.colors.length > 0 && typeof product.colors[0] === 'object';
+      const selectedColorIndex = selectedColors[product.id] || 0;
+      const imagesForProduct = hasNestedColors ? product.colors[selectedColorIndex].images : product.images;
+      const imageUrl = imagesForProduct['388_562'][0];
 
-    const productWithImage = {
-        ...product,
-        quantity: 1,
-        price: parseFloat(product.price), // Upewniamy się, że cena jest liczbą
-        image: imageUrl // Dodajemy poprawną ścieżkę do obrazu
-    };
+      const productWithImage = {
+          ...product,
+          quantity: 1,
+          price: parseFloat(product.price), // Upewniamy się, że cena jest liczbą
+          image: imageUrl // Dodajemy poprawną ścieżkę do obrazu
+      };
 
-    if (existingItemIndex > -1) {
-        // Jeśli produkt już jest w koszyku, tylko zwiększamy ilość
-        storedCart[existingItemIndex].quantity += 1;
-    } else {
-        // Dodajemy nowy produkt z obrazem
-        storedCart.push(productWithImage);
-        showNotification(`${product.name} został dodany do koszyka!`, 'success');
+      if (existingItemIndex > -1) {
+          // Jeśli produkt już jest w koszyku, tylko zwiększamy ilość
+          storedCart[existingItemIndex].quantity += 1;
+      } else {
+          // Dodajemy nowy produkt z obrazem
+          storedCart.push(productWithImage);
+          showNotification(`${product.name} został dodany do koszyka!`, 'success');
+      }
+
+      localStorage.setItem('cartItems', JSON.stringify(storedCart));
+      setIsCartModalOpen(true);
     }
-
-    localStorage.setItem('cartItems', JSON.stringify(storedCart));
-    setIsCartModalOpen(true);
   };
 
 
   const handleToggleLiked = (product) => {
-    const storedLiked = JSON.parse(localStorage.getItem('likedItems')) || [];
-    const existingItemIndex = storedLiked.findIndex(item => item.id === product.id);
-    let updatedLiked;
+    if (typeof window !== 'undefined') {
+      const existingItemIndex = likedItems.findIndex(item => item.id === product.id);
+      let updatedLiked;
 
-    if (existingItemIndex > -1) {
-      // Usuń, jeśli już jest w ulubionych
-      updatedLiked = storedLiked.filter(item => item.id !== product.id);
-      showNotification(`${product.name} został usunięty z ulubionych.`, 'error');
-    } else {
-      // Dodaj do ulubionych
-      const imageUrl = product.colors?.[0]?.images?.['388_562']?.[0] || product.images?.['388_562']?.[0];
-      const newLikedItem = { ...product, image: imageUrl };
-      updatedLiked = [...storedLiked, newLikedItem];
-      showNotification(`${product.name} został dodany do ulubionych!`, 'success');
+      if (existingItemIndex > -1) {
+        // Usuń, jeśli już jest w ulubionych
+        updatedLiked = likedItems.filter(item => item.id !== product.id);
+        showNotification(`${product.name} został usunięty z ulubionych.`, 'error');
+      } else {
+        // Dodaj do ulubionych
+        const imageUrl = product.colors?.[0]?.images?.['388_562']?.[0] || product.images?.['388_562']?.[0];
+        const newLikedItem = { ...product, image: imageUrl };
+        updatedLiked = [...likedItems, newLikedItem];
+        showNotification(`${product.name} został dodany do ulubionych!`, 'success');
+      }
+      // Zapisujemy zaktualizowaną tablicę do localStorage
+      localStorage.setItem('likedItems', JSON.stringify(updatedLiked));
+      setLikedItems(updatedLiked);
+      setLikedCount(updatedLiked.length);
     }
-    localStorage.setItem('likedItems', JSON.stringify(updatedLiked));
-    setLikedCount(updatedLiked.length)
   };
 
   // Tablica z adresami obrazów do karuzeli
@@ -215,6 +233,15 @@ export default function Home() {
   // Połącz wszystkie zaimportowane produkty w jedną tablicę
   const allNewProducts = [...K_C_B_Jackets, ...K_C_G_Jackets, ...K_C_B_Tshirts, ...K_C_G_Tops];
 
+  useEffect(() => {
+    // Check if window is defined (i.e., we are in the browser)
+    if (typeof window !== 'undefined') {
+      const storedLiked = JSON.parse(localStorage.getItem('likedItems')) || [];
+      setLikedItems(storedLiked);
+      setLikedCount(storedLiked.length);
+    }
+  }, []);
+
   const handleColorClick = (productId, colorIndex) => {
     setSelectedColors(prevState => ({
       ...prevState,
@@ -224,6 +251,7 @@ export default function Home() {
 
   return (
     <>
+      <StarGradient />
       <Navbar 
         onLoginClick={openModal}
         onCartClick={openCartModal}
@@ -304,7 +332,7 @@ export default function Home() {
                 />
                 <div className={styles.overlay}>
                   <h2> Boy jackets </h2>
-                  <Link href="/Products/Kids/Clothes/Boy/Jackets/" className={styles.overlayButton}>
+                  <Link href="/Products/Kids/Clothes/Boy/Jackets/" className={styles.ovButton}>
                     See
                   </Link>
                 </div>
@@ -319,7 +347,7 @@ export default function Home() {
                 />
                 <div className={styles.overlay}>
                   <h2> Boy T-shirts </h2>
-                  <Link href="/Products/Kids/Clothes/Boy/T-shirts/" className={styles.overlayButton}>
+                  <Link href="/Products/Kids/Clothes/Boy/T-shirts/" className={styles.ovButton}>
                     See
                   </Link>
                 </div>
@@ -334,7 +362,7 @@ export default function Home() {
                 />
                 <div className={styles.overlay}>
                   <h2> Girl jackets </h2>
-                  <Link href="/Products/Kids/Clothes/Girl/Jackets/" className={styles.overlayButton}>
+                  <Link href="/Products/Kids/Clothes/Girl/Jackets/" className={styles.ovButton}>
                     See
                   </Link>
                 </div>
@@ -349,7 +377,7 @@ export default function Home() {
                 />
                 <div className={styles.overlay}>
                   <h2> Girl tops </h2>
-                  <Link href="/Products/Kids/Clothes/Girl/Tops" className={styles.overlayButton}>
+                  <Link href="/Products/Kids/Clothes/Girl/Tops" className={styles.ovButton}>
                     See
                   </Link>
                 </div>
@@ -370,54 +398,66 @@ export default function Home() {
                   ? product.colors[selectedColorIndex].images
                   : product.images;
 
+                const isProductLiked = likedItems.some(item => item.id === product.id);
+
                 return (
                     <div 
                       key={product.id}
                       className={styles.fullProductCard}
+                      onMouseEnter={() => setHoveredProduct(product.id)}
+                      onMouseLeave={() => setHoveredProduct(null)}
                     >
                       <div 
                         className={styles.productItem}
-                        onMouseEnter={() => setHoveredProduct(product.id)}
-                        onMouseLeave={() => setHoveredProduct(null)}
                       >
                         {/* Obraz produktu, który jest tłem dla przycisków */}
-                        <Image
-                          src={hoveredProduct === product.id ? imagesForProduct['388_562'][1] : imagesForProduct['388_562'][0]}
-                          alt={product.name}
-                          width={250}
-                          height={350}
-                          className={styles.productImage}
-                        />
-
+                        <Link href={`/product/${product.id}`} className={styles.productLink}>
+                          <Image
+                            src={hoveredProduct === product.id ? imagesForProduct['388_562'][1] : imagesForProduct['388_562'][0]}
+                            alt={product.name}
+                            width={250}
+                            height={350}
+                            className={styles.productImage}
+                          />
+                        </Link>
                         {/* Przyciski, które pojawią się nad obrazem */}
                         {hoveredProduct === product.id && (
-                          <div className={styles.productOverlayButtons}>
-
+                          <>
                             <button 
                               className={styles.addToCartButton}
-                              onClick={() => addToCart(product)}
+                              onClick={(e) => {
+                                e.preventDefault(); // Zapobiega nawigacji do strony produktu
+                                addToCart(product);
+                              }}
                             >
                                 Add to cart
                             </button>
 
-                            <Link href={`/product/${product.id}`}>
-                              <button className={styles.seeDetailsButton}>
-                                See details
-                              </button>
-                            </Link>
-
-                            <button
-                            className={styles.likedProductButton}
-                            onClick={() => handleToggleLiked(product)}
-                            >
-                              Like
-                            </button>
-
-                          </div>
+                             <button
+                                className={styles.likedProductButton}
+                                onClick={() => handleToggleLiked(product)}
+                             >
+                                {isProductLiked ? (
+                                  <div className={styles.likedIconCircle}>
+                                      <FaStar
+                                        // Zastosowanie stylów SVG, aby kontrolować wypełnienie
+                                        style={{
+                                          fill: 'url(#star-gradient)' // Użycie ID gradientu
+                                        }}
+                                      />
+                                  </div>
+                                ) : (
+                                  <div className={styles.likedIconCircle}>
+                                      <FaRegStar />
+                                  </div>
+                                )}
+                             </button>
+                          </>
                         )}
+                        
                       </div>
 
-                      {/* Opis produktu, który powinien być pod obrazem */}
+                      {/* Opis produktu */}
                       <div className={styles.productInfo}>
                         <h2>{product.name}</h2>
                         <p>{product.price}</p>
